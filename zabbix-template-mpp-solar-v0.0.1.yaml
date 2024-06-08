@@ -1,0 +1,835 @@
+zabbix_export:
+  version: '6.4'
+  template_groups:
+    - uuid: 0e60ac85bc3941e2a1d66a048ff164da
+      name: UPS
+  templates:
+    - uuid: a4c77adc7a554c4fb457f10fdc508cb0
+      template: mpp-solar-mqtt
+      name: mpp-solar-mqtt
+      groups:
+        - name: UPS
+      items:
+        - uuid: 36968da46a444924a7d9877bf07fae37
+          name: 'AC input voltage'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, "QPIGS/status/ac_input_voltage/value", {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          value_type: FLOAT
+          units: V
+          description: 'AC input voltage'
+          triggers:
+            - uuid: 973fb37bdf634061b8d6e87c6077d579
+              expression: 'last(/mpp-solar-mqtt/mqtt.get[{$MQTT_BROKER}, "QPIGS/status/ac_input_voltage/value", {$MQTT_USER}, {$MQTT_PASS}])<200'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/mpp-solar-mqtt/mqtt.get[{$MQTT_BROKER}, "QPIGS/status/ac_input_voltage/value", {$MQTT_USER}, {$MQTT_PASS}])>200'
+              name: 'AC input voltage is lost'
+              priority: WARNING
+              type: MULTIPLE
+        - uuid: 322d962f8c794bb6a7e21a77c8cd73e8
+          name: 'AC input frequency'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/ac_input_frequency/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: Hz
+          description: 'Input frequency of alternating stream'
+          triggers:
+            - uuid: 8e22b72d17fb46358e09421623c555d5
+              expression: 'last(/mpp-solar-mqtt/mqtt.get[{$MQTT_BROKER}, QPIGS/status/ac_input_frequency/value, {$MQTT_USER}, {$MQTT_PASS}])<48'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/mpp-solar-mqtt/mqtt.get[{$MQTT_BROKER}, QPIGS/status/ac_input_frequency/value, {$MQTT_USER}, {$MQTT_PASS}])=50'
+              name: 'Low AC input frequency'
+              priority: WARNING
+              type: MULTIPLE
+        - uuid: 9c4c57a45f274587b4a57312add89657
+          name: 'AC output active power'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/ac_output_active_power/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: W
+        - uuid: d2187ed86b0649168bed309f42627bd2
+          name: 'AC output apparent power'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/ac_output_apparent_power/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: VA
+        - uuid: 342dab666a0c4461a1ec5c6c870baac6
+          name: 'AC output frequency'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/ac_output_frequency/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: Hz
+          description: 'Output frequency of alternating stream'
+        - uuid: 2c1835d88fa14451b9b2d6a865de6429
+          name: 'AC output load'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/ac_output_load/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: '%'
+          description: 'AC output load'
+          triggers:
+            - uuid: 7d1aee7d2ffc4d4e855a00f09d0971a2
+              expression: 'last(/mpp-solar-mqtt/mqtt.get[{$MQTT_BROKER}, QPIGS/status/ac_output_load/value, {$MQTT_USER}, {$MQTT_PASS}])>90'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/mpp-solar-mqtt/mqtt.get[{$MQTT_BROKER}, QPIGS/status/ac_output_load/value, {$MQTT_USER}, {$MQTT_PASS}])<90'
+              name: 'Large output load'
+              priority: AVERAGE
+              type: MULTIPLE
+        - uuid: 286c08d5e2cb42898e16583d3d35031e
+          name: 'AC output voltage'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/ac_output_voltage/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          value_type: FLOAT
+          units: V
+          description: 'AC output voltage'
+        - uuid: f65af1116a2044419198482c0c7ce95c
+          name: 'Battery capacity'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/battery_capacity/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: '%'
+          triggers:
+            - uuid: 044a931a2c4842998a5b32c850e7699d
+              expression: 'last(/mpp-solar-mqtt/mqtt.get[{$MQTT_BROKER}, QPIGS/status/battery_capacity/value, {$MQTT_USER}, {$MQTT_PASS}])<=60'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/mpp-solar-mqtt/mqtt.get[{$MQTT_BROKER}, QPIGS/status/battery_capacity/value, {$MQTT_USER}, {$MQTT_PASS}])>60'
+              name: 'Low battery capacity'
+              priority: HIGH
+            - uuid: fa54d837bac0474d8a581e653fbe077d
+              expression: 'last(/mpp-solar-mqtt/mqtt.get[{$MQTT_BROKER}, QPIGS/status/battery_capacity/value, {$MQTT_USER}, {$MQTT_PASS}])<=40'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/mpp-solar-mqtt/mqtt.get[{$MQTT_BROKER}, QPIGS/status/battery_capacity/value, {$MQTT_USER}, {$MQTT_PASS}])>40'
+              name: 'Minimum battery capacity'
+              priority: DISASTER
+        - uuid: 3dd2657d73074aaabb183e1f9153fc02
+          name: 'Battery charging current'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/battery_charging_current/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: A
+        - uuid: 02fbd2764fdf41ddb13a6cb2e0a3c47f
+          name: 'Battery discharge current'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/battery_discharge_current/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: A
+        - uuid: cff6eb326ba54fdfbc998bd1bb9094cc
+          name: 'Battery voltage'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/battery_voltage/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          value_type: FLOAT
+          units: V
+        - uuid: cc8965c3e6e042a8bae207b6c4017d5d
+          name: 'Battery voltage from scc'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/battery_voltage_from_scc/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          value_type: FLOAT
+          units: V
+        - uuid: 4af5c7633bc646ec8e5cdb5d5af8a575
+          name: 'Bus voltage'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/bus_voltage/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: V
+        - uuid: 851622b86cc440ac88e5decd4ff4bb29
+          name: 'Inverter heat sink temperature'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/inverter_heat_sink_temperature/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: °C
+        - uuid: 66ec754d48ba4d56a4878af7e4c00294
+          name: 'Is ac charging on'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/is_ac_charging_on/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: bool
+          description: 'Is ac charging on'
+        - uuid: d324d5e9c92d42679f57e2dc093e5ee7
+          name: 'Is battery voltage to steady while charging'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/is_battery_voltage_to_steady_while_charging/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: bool
+          description: 'Is battery voltage to steady while charging'
+        - uuid: 2e1847a2c6944f28a7754a8389232960
+          name: 'Is charging on'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/is_charging_on/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: bool
+          description: 'Is charging on'
+        - uuid: 45be4c2702744f22a5374368290807c0
+          name: 'Is charging to float'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/is_charging_to_float/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: bool
+          description: 'Is charging to float'
+        - uuid: cf5ffc77ab0f48ffab726ccb61bbebd7
+          name: 'Is configuration changed'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/is_configuration_changed/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: bool
+        - uuid: e2b4eadb11f8402babe06678e88c2c0d
+          name: 'Is load on'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/is_load_on/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: bool
+        - uuid: bd7b9d5c30834e588cb884ef55d9c836
+          name: 'Is reserved'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/is_reserved/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: bool
+        - uuid: 83363592f1cd44468304db0fcecaa87c
+          name: 'Is sbu priority version added'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/is_sbu_priority_version_added/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: bool
+          description: 'Is sbu priority version added'
+        - uuid: 91340b7f6229433c89f24be263902339
+          name: 'Is scc charging on'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/is_scc_charging_on/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: bool
+          description: 'Is scc charging on'
+        - uuid: ff387868430040b3bc5af36eb7840d58
+          name: 'Is scc firmware update'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/is_scc_firmware_updated/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: bool
+          description: 'Is scc firmware update'
+        - uuid: e7807b30c8f345fc8c82dcecc06138b2
+          name: 'Is switched on'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/is_switched_on/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: bool
+          description: 'Is switched on'
+        - uuid: a719ff1950644c43a3fb1710a539ad8b
+          name: 'PV input current for battery'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/pv_input_current_for_battery/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          value_type: FLOAT
+          units: A
+        - uuid: 72376e3b66dd41f89cefc1a8bec1a00e
+          name: 'PV input power'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/pv_input_power/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          value_type: FLOAT
+          units: W
+        - uuid: 216cd2b1043a484992cd7405378b1ea8
+          name: 'PV input voltage'
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/pv_input_voltage/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          value_type: FLOAT
+          units: V
+        - uuid: 9695845c24794a4da43823b53c38573d
+          name: rsv1
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/rsv1/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: A
+        - uuid: 6efbe65090b34509a7996602bb5e145d
+          name: rsv2
+          type: ZABBIX_ACTIVE
+          key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/rsv2/value, {$MQTT_USER}, {$MQTT_PASS}]'
+          delay: '0'
+          history: 14d
+          units: A
+      macros:
+        - macro: '{$MQTT_BROKER}'
+          value: 127.0.0.1
+        - macro: '{$MQTT_PASS}'
+          value: '123456'
+        - macro: '{$MQTT_USER}'
+          value: mppsolar
+      dashboards:
+        - uuid: 2a17b9feb8924b46a602383a43681b45
+          name: Main
+          display_period: '10'
+          pages:
+            - widgets:
+                - type: item
+                  name: 'Input voltage'
+                  width: '2'
+                  fields:
+                    - type: INTEGER
+                      name: adv_conf
+                      value: '1'
+                    - type: STRING
+                      name: bg_color
+                      value: FFFDE7
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '24'
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: mpp-solar-mqtt
+                        key: 'mqtt.get[{$MQTT_BROKER}, "QPIGS/status/ac_input_voltage/value", {$MQTT_USER}, {$MQTT_PASS}]'
+                    - type: INTEGER
+                      name: show
+                      value: '2'
+                    - type: INTEGER
+                      name: show
+                      value: '3'
+                    - type: INTEGER
+                      name: show
+                      value: '4'
+                    - type: INTEGER
+                      name: time_h_pos
+                      value: '2'
+                    - type: INTEGER
+                      name: time_size
+                      value: '10'
+                    - type: INTEGER
+                      name: time_v_pos
+                      value: '2'
+                    - type: STRING
+                      name: units
+                      value: V
+                    - type: STRING
+                      name: units_color
+                      value: 004D40
+                    - type: INTEGER
+                      name: units_size
+                      value: '24'
+                    - type: STRING
+                      name: value_color
+                      value: B71C1C
+                    - type: INTEGER
+                      name: value_size
+                      value: '24'
+                - type: graph
+                  name: 'AC output active power'
+                  'y': '2'
+                  width: '11'
+                  height: '4'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: mpp-solar-mqtt
+                        name: 'AC output active power'
+                - type: graph
+                  name: 'AC output load'
+                  'y': '6'
+                  width: '11'
+                  height: '4'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: mpp-solar-mqtt
+                        name: 'AC output load'
+                - type: graph
+                  name: 'PV input power'
+                  'y': '10'
+                  width: '11'
+                  height: '4'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: mpp-solar-mqtt
+                        name: 'PV input power'
+                - type: item
+                  name: 'Input frequency'
+                  x: '2'
+                  width: '2'
+                  fields:
+                    - type: INTEGER
+                      name: adv_conf
+                      value: '1'
+                    - type: STRING
+                      name: bg_color
+                      value: FFFDE7
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '24'
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: mpp-solar-mqtt
+                        key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/ac_input_frequency/value, {$MQTT_USER}, {$MQTT_PASS}]'
+                    - type: INTEGER
+                      name: show
+                      value: '2'
+                    - type: INTEGER
+                      name: show
+                      value: '3'
+                    - type: INTEGER
+                      name: show
+                      value: '4'
+                    - type: INTEGER
+                      name: time_h_pos
+                      value: '2'
+                    - type: INTEGER
+                      name: time_size
+                      value: '10'
+                    - type: INTEGER
+                      name: time_v_pos
+                      value: '2'
+                    - type: STRING
+                      name: units
+                      value: Hz
+                    - type: STRING
+                      name: units_color
+                      value: 004D40
+                    - type: INTEGER
+                      name: units_size
+                      value: '24'
+                    - type: STRING
+                      name: value_color
+                      value: 0D47A1
+                    - type: INTEGER
+                      name: value_size
+                      value: '24'
+                - type: item
+                  name: 'Output voltage'
+                  x: '5'
+                  width: '2'
+                  fields:
+                    - type: INTEGER
+                      name: adv_conf
+                      value: '1'
+                    - type: STRING
+                      name: bg_color
+                      value: F1F8E9
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '24'
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: mpp-solar-mqtt
+                        key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/ac_output_voltage/value, {$MQTT_USER}, {$MQTT_PASS}]'
+                    - type: INTEGER
+                      name: show
+                      value: '2'
+                    - type: INTEGER
+                      name: show
+                      value: '3'
+                    - type: INTEGER
+                      name: show
+                      value: '4'
+                    - type: INTEGER
+                      name: time_h_pos
+                      value: '2'
+                    - type: INTEGER
+                      name: time_size
+                      value: '10'
+                    - type: INTEGER
+                      name: time_v_pos
+                      value: '2'
+                    - type: STRING
+                      name: units
+                      value: Hz
+                    - type: STRING
+                      name: units_color
+                      value: 004D40
+                    - type: INTEGER
+                      name: units_size
+                      value: '24'
+                    - type: STRING
+                      name: value_color
+                      value: B71C1C
+                    - type: INTEGER
+                      name: value_size
+                      value: '24'
+                - type: item
+                  name: 'Output frequency'
+                  x: '7'
+                  width: '2'
+                  fields:
+                    - type: INTEGER
+                      name: adv_conf
+                      value: '1'
+                    - type: STRING
+                      name: bg_color
+                      value: F1F8E9
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '24'
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: mpp-solar-mqtt
+                        key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/ac_output_frequency/value, {$MQTT_USER}, {$MQTT_PASS}]'
+                    - type: INTEGER
+                      name: show
+                      value: '2'
+                    - type: INTEGER
+                      name: show
+                      value: '3'
+                    - type: INTEGER
+                      name: show
+                      value: '4'
+                    - type: INTEGER
+                      name: time_h_pos
+                      value: '2'
+                    - type: INTEGER
+                      name: time_size
+                      value: '10'
+                    - type: INTEGER
+                      name: time_v_pos
+                      value: '2'
+                    - type: STRING
+                      name: units
+                      value: Hz
+                    - type: STRING
+                      name: units_color
+                      value: 004D40
+                    - type: INTEGER
+                      name: units_size
+                      value: '24'
+                    - type: STRING
+                      name: value_color
+                      value: 0D47A1
+                    - type: INTEGER
+                      name: value_size
+                      value: '24'
+                - type: item
+                  name: 'Battery capacity'
+                  x: '11'
+                  width: '2'
+                  fields:
+                    - type: INTEGER
+                      name: adv_conf
+                      value: '1'
+                    - type: STRING
+                      name: bg_color
+                      value: FBE9E7
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '24'
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: mpp-solar-mqtt
+                        key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/battery_capacity/value, {$MQTT_USER}, {$MQTT_PASS}]'
+                    - type: INTEGER
+                      name: show
+                      value: '2'
+                    - type: INTEGER
+                      name: show
+                      value: '3'
+                    - type: INTEGER
+                      name: show
+                      value: '4'
+                    - type: INTEGER
+                      name: time_h_pos
+                      value: '2'
+                    - type: INTEGER
+                      name: time_size
+                      value: '10'
+                    - type: INTEGER
+                      name: time_v_pos
+                      value: '2'
+                    - type: STRING
+                      name: units
+                      value: '%'
+                    - type: STRING
+                      name: units_color
+                      value: 004D40
+                    - type: INTEGER
+                      name: units_size
+                      value: '24'
+                    - type: STRING
+                      name: value_color
+                      value: 0D47A1
+                    - type: INTEGER
+                      name: value_size
+                      value: '24'
+                - type: graph
+                  name: 'Battery current'
+                  x: '11'
+                  'y': '2'
+                  width: '11'
+                  height: '4'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: mpp-solar-mqtt
+                        name: 'Battery current'
+                - type: graph
+                  x: '11'
+                  'y': '6'
+                  width: '11'
+                  height: '4'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: mpp-solar-mqtt
+                        name: 'Battery capacity'
+                - type: graph
+                  name: 'PV input voltage'
+                  x: '11'
+                  'y': '10'
+                  width: '11'
+                  height: '4'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: mpp-solar-mqtt
+                        name: 'PV input voltage'
+                - type: item
+                  name: 'Battery voltage'
+                  x: '13'
+                  width: '2'
+                  fields:
+                    - type: INTEGER
+                      name: adv_conf
+                      value: '1'
+                    - type: STRING
+                      name: bg_color
+                      value: FBE9E7
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '24'
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: mpp-solar-mqtt
+                        key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/battery_voltage/value, {$MQTT_USER}, {$MQTT_PASS}]'
+                    - type: INTEGER
+                      name: show
+                      value: '2'
+                    - type: INTEGER
+                      name: show
+                      value: '3'
+                    - type: INTEGER
+                      name: show
+                      value: '4'
+                    - type: INTEGER
+                      name: time_h_pos
+                      value: '2'
+                    - type: INTEGER
+                      name: time_size
+                      value: '10'
+                    - type: INTEGER
+                      name: time_v_pos
+                      value: '2'
+                    - type: STRING
+                      name: units
+                      value: V
+                    - type: STRING
+                      name: units_color
+                      value: 004D40
+                    - type: INTEGER
+                      name: units_size
+                      value: '24'
+                    - type: STRING
+                      name: value_color
+                      value: B71C1C
+                    - type: INTEGER
+                      name: value_size
+                      value: '24'
+                - type: item
+                  name: 'Battery charging current'
+                  x: '15'
+                  width: '2'
+                  fields:
+                    - type: INTEGER
+                      name: adv_conf
+                      value: '1'
+                    - type: STRING
+                      name: bg_color
+                      value: FBE9E7
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '24'
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: mpp-solar-mqtt
+                        key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/battery_charging_current/value, {$MQTT_USER}, {$MQTT_PASS}]'
+                    - type: INTEGER
+                      name: show
+                      value: '2'
+                    - type: INTEGER
+                      name: show
+                      value: '3'
+                    - type: INTEGER
+                      name: show
+                      value: '4'
+                    - type: INTEGER
+                      name: time_h_pos
+                      value: '2'
+                    - type: INTEGER
+                      name: time_size
+                      value: '10'
+                    - type: INTEGER
+                      name: time_v_pos
+                      value: '2'
+                    - type: STRING
+                      name: units
+                      value: V
+                    - type: STRING
+                      name: units_color
+                      value: 004D40
+                    - type: INTEGER
+                      name: units_size
+                      value: '24'
+                    - type: STRING
+                      name: value_color
+                      value: 689F38
+                    - type: INTEGER
+                      name: value_size
+                      value: '24'
+                - type: item
+                  name: 'Battery discharge current'
+                  x: '17'
+                  width: '2'
+                  fields:
+                    - type: INTEGER
+                      name: adv_conf
+                      value: '1'
+                    - type: STRING
+                      name: bg_color
+                      value: FBE9E7
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '24'
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: mpp-solar-mqtt
+                        key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/battery_discharge_current/value, {$MQTT_USER}, {$MQTT_PASS}]'
+                    - type: INTEGER
+                      name: show
+                      value: '2'
+                    - type: INTEGER
+                      name: show
+                      value: '3'
+                    - type: INTEGER
+                      name: show
+                      value: '4'
+                    - type: INTEGER
+                      name: time_h_pos
+                      value: '2'
+                    - type: INTEGER
+                      name: time_size
+                      value: '10'
+                    - type: INTEGER
+                      name: time_v_pos
+                      value: '2'
+                    - type: STRING
+                      name: units
+                      value: V
+                    - type: STRING
+                      name: units_color
+                      value: 004D40
+                    - type: INTEGER
+                      name: units_size
+                      value: '24'
+                    - type: STRING
+                      name: value_color
+                      value: 689F38
+                    - type: INTEGER
+                      name: value_size
+                      value: '24'
+  graphs:
+    - uuid: a61b1583e2934cc5ac8d06120bd23d43
+      name: 'AC output active power'
+      graph_items:
+        - color: BF360C
+          calc_fnc: ALL
+          item:
+            host: mpp-solar-mqtt
+            key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/ac_output_active_power/value, {$MQTT_USER}, {$MQTT_PASS}]'
+    - uuid: e48267e2014b42949b37a4f428acfd57
+      name: 'AC output load'
+      height: '250'
+      graph_items:
+        - drawtype: BOLD_LINE
+          color: 311B92
+          calc_fnc: ALL
+          item:
+            host: mpp-solar-mqtt
+            key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/ac_output_load/value, {$MQTT_USER}, {$MQTT_PASS}]'
+    - uuid: d43605c823d648e882f66a948e76f131
+      name: 'Battery capacity'
+      graph_items:
+        - color: 1976D2
+          calc_fnc: ALL
+          item:
+            host: mpp-solar-mqtt
+            key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/battery_capacity/value, {$MQTT_USER}, {$MQTT_PASS}]'
+    - uuid: 0c14a2e62f5b409a9536b9533bccce49
+      name: 'Battery current'
+      show_triggers: 'NO'
+      graph_items:
+        - color: '093578'
+          calc_fnc: ALL
+          item:
+            host: mpp-solar-mqtt
+            key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/battery_charging_current/value, {$MQTT_USER}, {$MQTT_PASS}]'
+        - sortorder: '1'
+          color: B71C1C
+          calc_fnc: ALL
+          item:
+            host: mpp-solar-mqtt
+            key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/battery_discharge_current/value, {$MQTT_USER}, {$MQTT_PASS}]'
+    - uuid: fe01693357a1420b9a23e8c10b16b170
+      name: 'PV input power'
+      show_triggers: 'NO'
+      graph_items:
+        - color: 004D40
+          calc_fnc: ALL
+          item:
+            host: mpp-solar-mqtt
+            key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/pv_input_power/value, {$MQTT_USER}, {$MQTT_PASS}]'
+    - uuid: 69d11dd14fb040e0ab60b587e64f4316
+      name: 'PV input voltage'
+      show_triggers: 'NO'
+      graph_items:
+        - color: F57F17
+          calc_fnc: ALL
+          item:
+            host: mpp-solar-mqtt
+            key: 'mqtt.get[{$MQTT_BROKER}, QPIGS/status/pv_input_voltage/value, {$MQTT_USER}, {$MQTT_PASS}]'
